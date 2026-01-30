@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Pre-commit hook to auto-format code and run Checkstyle
+
+echo "Auto-formatting code with Spotless..."
+
+# Auto-format the code
+./gradlew spotlessApply --quiet
+
+# Check the exit code
+if [ $? -ne 0 ]; then
+    echo "❌ Spotless formatting failed!"
+    exit 1
+fi
+
+echo "✅ Code formatted successfully!"
+echo ""
+echo "🔍 Running Checkstyle..."
+
+# Run checkstyle
+./gradlew checkstyleMain checkstyleClient --quiet
+
+# Check the exit code
+if [ $? -ne 0 ]; then
+    echo "❌ Checkstyle failed! Please fix the issues before committing."
+    echo "Run './gradlew checkstyleMain checkstyleClient' to see detailed errors."
+    exit 1
+fi
+
+echo "✅ Checkstyle passed!"
+echo ""
+echo "All checks passed! Proceeding with commit..."
+exit 0
+
