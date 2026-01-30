@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "server_precheck",
+  "version": "${version}",
+  "name": "Server Pre-Check",
+  "description": "A mod that allows server administrators to control which mods clients can use when connecting to their server.",
+  "authors": [
+    "calebcsimmons"
+  ],
+  "contact": {
+  },
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.hexagram2021.server_precheck.client.ServerPreCheckClient"
+    ],
+    "main": [
+      "com.hexagram2021.server_precheck.ServerPreCheck"
+    ],
+    "server": [
+      "com.hexagram2021.server_precheck.server.ServerPreCheckServer"
+    ]
+  },
+  "mixins": [
+    "server_precheck.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21"
+  },
+  "suggests": {
+    "fabric-api": "*"
+  }
+}

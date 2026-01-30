@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package com.hexagram2021.server_precheck.mixin;
+
+import javax.annotation.ParametersAreNonnullByDefault;

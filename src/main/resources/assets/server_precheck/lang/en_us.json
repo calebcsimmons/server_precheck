@@ -1,0 +1,13 @@
+{
+  "language": "English",
+  "language.code": "en_us",
+  "language.region": "United States",
+
+  "server_precheck.disconnect.header": "Connection rejected: Mod list mismatch\n\n",
+  "server_precheck.disconnect.unauthorized_header": "Unauthorized mods detected:\n",
+  "server_precheck.disconnect.missing_header": "Missing required mods:\n",
+  "server_precheck.disconnect.mod_entry": "  - %s\n",
+  "server_precheck.disconnect.modpack_instruction": "Please install and run only the following modpack:\n",
+  "server_precheck.disconnect.contact_admin": "Please contact the server administrator for the correct mod list.",
+  "server_precheck.disconnect.not_installed": "Connection rejected: Server Pre-Check not installed\n\nThis server requires the Server Pre-Check mod to be installed on your client.\nPlease install the mod and try again."
+}
