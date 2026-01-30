@@ -16,26 +16,26 @@ public interface IConnectionWithValidationResult {
    * @return the disconnect message if validation failed, or null if validation passed
    */
   @Nullable
-  MutableComponent serverPreCheck$getValidationFailureMessage();
+  MutableComponent getValidationFailureMessage();
 
   /**
    * Sets the validation failure message.
    *
    * @param message the disconnect message to store, or null to clear
    */
-  void serverPreCheck$setValidationFailureMessage(@Nullable MutableComponent message);
+  void setValidationFailureMessage(@Nullable MutableComponent message);
 
   /**
    * Checks if there is a pending validation failure.
    *
    * @return true if validation failed and the player should be kicked (unless exempt)
    */
-  default boolean serverPreCheck$hasValidationFailure() {
-    return serverPreCheck$getValidationFailureMessage() != null;
+  default boolean hasValidationFailure() {
+    return getValidationFailureMessage() != null;
   }
 
   /** Clears any stored validation failure (used when player is exempt). */
-  default void serverPreCheck$clearValidationFailure() {
-    serverPreCheck$setValidationFailureMessage(null);
+  default void clearValidationFailure() {
+    setValidationFailureMessage(null);
   }
 }

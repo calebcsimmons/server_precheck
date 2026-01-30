@@ -9,7 +9,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.hexagram2021.server_precheck.ServerPreCheck;
 import com.hexagram2021.server_precheck.common.utils.SPCLogger;
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -23,7 +29,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class SPCServerConfig {
   public interface IConfigValue<T extends Serializable> {
-    List<IConfigValue<?>> configValues = Lists.newArrayList();
+    List<IConfigValue<?>> CONFIG_VALUES = Lists.newArrayList();
 
     String name();
 
@@ -44,7 +50,7 @@ public class SPCServerConfig {
       this(
           name, Arrays.stream(defaultValues).collect(Collectors.toCollection(Lists::newArrayList)));
 
-      configValues.add(this);
+      CONFIG_VALUES.add(this);
     }
 
     public ListConfigValue(String name, ArrayList<T> value) {
@@ -168,7 +174,7 @@ public class SPCServerConfig {
       this.name = name;
       this.value = value;
 
-      configValues.add(this);
+      CONFIG_VALUES.add(this);
     }
 
     @Override
@@ -198,7 +204,7 @@ public class SPCServerConfig {
       this.name = name;
       this.value = defaultValue;
 
-      configValues.add(this);
+      CONFIG_VALUES.add(this);
     }
 
     @Override
@@ -221,8 +227,8 @@ public class SPCServerConfig {
   }
 
   private static final Path CONFIG_DIR = FabricLoader.getInstance().getConfigDir();
-  private static final File configFile = CONFIG_DIR.resolve(MODID + "-config.json").toFile();
-  private static final File readmeFile = CONFIG_DIR.resolve(MODID + "-config-readme.md").toFile();
+  private static final File CONFIG_FILE = CONFIG_DIR.resolve(MODID + "-config.json").toFile();
+  private static final File README_FILE = CONFIG_DIR.resolve(MODID + "-config-readme.md").toFile();
 
   // Server Settings
   public static final StringConfigValue MODPACK_NAME = new StringConfigValue("MODPACK_NAME", "");
@@ -247,7 +253,9 @@ public class SPCServerConfig {
   public static final StringConfigValue MSG_NOT_INSTALLED =
       new StringConfigValue(
           "MSG_NOT_INSTALLED",
-          "Connection rejected: Server Pre-Check not installed\n\nThis server requires the Server Pre-Check mod to be installed on your client.\nPlease install the mod and try again.");
+          "Connection rejected: Server Pre-Check not installed\n\n"
+              + "This server requires the Server Pre-Check mod to be installed on your client.\n"
+              + "Please install the mod and try again.");
 
   // WhiteLists
   public static final BoolConfigValue USE_WHITELIST_ONLY =
@@ -366,25 +374,25 @@ public class SPCServerConfig {
         Files.createDirectories(CONFIG_DIR);
       }
 
-      if (configFile.exists()) {
-        try (Reader reader = new FileReader(configFile)) {
+      if (CONFIG_FILE.exists()) {
+        try (Reader reader = new FileReader(CONFIG_FILE)) {
           JsonElement json = JsonParser.parseReader(reader);
           loadFromJson(json.getAsJsonObject());
         }
         checkValues();
         saveConfig();
       } else {
-        if (configFile.createNewFile()) {
+        if (CONFIG_FILE.createNewFile()) {
           saveConfig();
         } else {
-          SPCLogger.LOGGER.error("Could not create new file " + configFile);
+          SPCLogger.LOGGER.error("Could not create new file " + CONFIG_FILE);
         }
       }
-      if (!readmeFile.exists()) {
-        if (readmeFile.createNewFile()) {
+      if (!README_FILE.exists()) {
+        if (README_FILE.createNewFile()) {
           fillReadmeFile();
         } else {
-          SPCLogger.LOGGER.error("Could not create new file " + readmeFile);
+          SPCLogger.LOGGER.error("Could not create new file " + README_FILE);
         }
       }
     } catch (IOException e) {
@@ -393,35 +401,45 @@ public class SPCServerConfig {
   }
 
   private static void fillReadmeFile() throws IOException {
-    try (Writer writer = new FileWriter(readmeFile)) {
+    try (Writer writer = new FileWriter(README_FILE)) {
       writer.write("# Abstract\n\n");
       writer.write(
-          "Thank you for choosing Server Pre-Check to protect your server from client hacking mods. Let me introduce how it works and what you can do.\n\n");
+          "Thank you for choosing Server Pre-Check to protect your server from client hacking "
+              + "mods. Let me introduce how it works and what you can do.\n\n");
       writer.write("This mod works on client and server separately:\n\n");
       writer.write(
-          "- On the client side, it gathers all identifier of mods (\"mod_id\"s) and sends them to the server.\n");
+          "- On the client side, it gathers all identifier of mods (\"mod_id\"s) and sends them "
+              + "to the server.\n");
       writer.write(
-          "- On the server side, it checks players who try to connect the server if they install hacking mods, or if they do not install any necessary mods to avoid problems.\n\n");
+          "- On the server side, it checks players who try to connect the server if they install "
+              + "hacking mods, or if they do not install any necessary mods to avoid problems.\n\n");
       writer.write("But both sides are required. If not:\n\n");
       writer.write(
-          "- Installed on the client side but not installed on the server side. The client player can still enter the server and play, but this mod can not protect your server from hacking.\n");
+          "- Installed on the client side but not installed on the server side. The client player "
+              + "can still enter the server and play, but this mod can not protect your server "
+              + "from hacking.\n");
       writer.write(
-          "- Installed on the server side but not installed on the client side. The client player is not allowed to enter the server.\n\n");
+          "- Installed on the server side but not installed on the client side. The client player "
+              + "is not allowed to enter the server.\n\n");
 
       writer.write("# Server Settings\n\n");
       writer.write("## MODPACK_NAME\n\n");
       writer.write(
-          "Set this to your modpack's name. When a player is rejected due to mod mismatch, they will see a message like:\n");
+          "Set this to your modpack's name. When a player is rejected due to mod mismatch, "
+              + "they will see a message like:\n");
       writer.write(
           "\"Please install and run only the following modpack: [your modpack name]\"\n\n");
       writer.write("Example: `\"MODPACK_NAME\": \"My Awesome Modpack v1.0\"`\n\n");
       writer.write("## CUSTOM_DISCONNECT_MESSAGE\n\n");
       writer.write(
-          "If you want complete control over the disconnect message, set this to your custom message.\n");
+          "If you want complete control over the disconnect message, set this to your custom "
+              + "message.\n");
       writer.write(
-          "When set, this message will be shown instead of the default detailed error message.\n\n");
+          "When set, this message will be shown instead of the default detailed error "
+              + "message.\n\n");
       writer.write(
-          "Example: `\"CUSTOM_DISCONNECT_MESSAGE\": \"Please download our modpack from example.com/modpack\"`\n\n");
+          "Example: `\"CUSTOM_DISCONNECT_MESSAGE\": \"Please download our modpack from "
+              + "example.com/modpack\"`\n\n");
 
       writer.write("# Disconnect Message Templates\n\n");
       writer.write(
@@ -430,48 +448,71 @@ public class SPCServerConfig {
       writer.write("- `MSG_UNAUTHORIZED_HEADER`: Header for the list of unauthorized mods.\n");
       writer.write("- `MSG_MISSING_HEADER`: Header for the list of missing required mods.\n");
       writer.write(
-          "- `MSG_MOD_ENTRY`: Format for each mod entry. Use `%s` as placeholder for the mod ID.\n");
+          "- `MSG_MOD_ENTRY`: Format for each mod entry. Use `%s` as placeholder for the "
+              + "mod ID.\n");
       writer.write("- `MSG_MODPACK_INSTRUCTION`: Shown when MODPACK_NAME is set.\n");
       writer.write("- `MSG_CONTACT_ADMIN`: Shown when MODPACK_NAME is not set.\n");
       writer.write(
-          "- `MSG_NOT_INSTALLED`: Shown when the client doesn't have Server Pre-Check installed.\n\n");
+          "- `MSG_NOT_INSTALLED`: Shown when the client doesn't have Server Pre-Check "
+              + "installed.\n\n");
       writer.write(
-          "These can be set to translation keys for i18n support (e.g., `server_precheck.disconnect.header`).\n\n");
+          "These can be set to translation keys for i18n support (e.g., "
+              + "`server_precheck.disconnect.header`).\n\n");
 
       writer.write("# Player Exemptions\n\n");
       writer.write(
-          "Use `EXEMPT_PLAYERS` to specify player UUIDs that bypass all mod validation checks.\n");
+          "Use `EXEMPT_PLAYERS` to specify player UUIDs that bypass all mod validation "
+              + "checks.\n");
       writer.write(
-          "This is useful for server admins or testers who need to join with different mods.\n\n");
+          "This is useful for server admins or testers who need to join with different "
+              + "mods.\n\n");
       writer.write("Example: `\"EXEMPT_PLAYERS\": [\"069a79f4-44e9-4726-a5be-fca90e38aaf5\"]`\n\n");
       writer.write(
-          "UUIDs can be specified with or without dashes. To find a player's UUID, check sites like NameMC or your server logs.\n\n");
+          "UUIDs can be specified with or without dashes. To find a player's UUID, check sites "
+              + "like NameMC or your server logs.\n\n");
 
       writer.write("# Adding a mod to whitelist and blacklist\n\n");
       writer.write(
-          "The config file is in \"<server directory>/config/server_precheck-config.json\". If you want to add mods to the whitelist or blacklist, please read the following guides.\n\n");
+          "The config file is in \"<server directory>/config/server_precheck-config.json\". "
+              + "If you want to add mods to the whitelist or blacklist, please read the "
+              + "following guides.\n\n");
       writer.write(
-          "First, you should find the identifier of the mod (modid), a simple way is open the jar file with an archiver software (eg. WinZip, HaoZip, 7-Zip), open \"fabric.mod.json\" and see what the value of key \"id\" is. For example, the modid of Server Pre-Check mod is \"server_precheck\".\n\n");
+          "First, you should find the identifier of the mod (modid), a simple way is open the "
+              + "jar file with an archiver software (eg. WinZip, HaoZip, 7-Zip), open "
+              + "\"fabric.mod.json\" and see what the value of key \"id\" is. For example, the "
+              + "modid of Server Pre-Check mod is \"server_precheck\".\n\n");
       writer.write(
-          "Then, add it to `CLIENT_MOD_NECESSARY` field if you want client players install it. By default, it is blacklist mode, so you can add it to `CLIENT_MOD_BLACKLIST` field if you do not want client players install it. If you want to use whitelist mode instead, set `USE_WHITELIST_ONLY` to true and add all whitelist modids to `CLIENT_MOD_WHITELIST` field.\n\n");
+          "Then, add it to `CLIENT_MOD_NECESSARY` field if you want client players install it. "
+              + "By default, it is blacklist mode, so you can add it to `CLIENT_MOD_BLACKLIST` "
+              + "field if you do not want client players install it. If you want to use whitelist "
+              + "mode instead, set `USE_WHITELIST_ONLY` to true and add all whitelist modids to "
+              + "`CLIENT_MOD_WHITELIST` field.\n\n");
       writer.write(
-          "In addition, if `USE_WHITELIST_ONLY` is true, `CLIENT_MOD_BLACKLIST` field is just ignored while running the server. And if `USE_WHITELIST_ONLY` is false, `CLIENT_MOD_WHITELIST` field is ignored instead.\n\n");
+          "In addition, if `USE_WHITELIST_ONLY` is true, `CLIENT_MOD_BLACKLIST` field is just "
+              + "ignored while running the server. And if `USE_WHITELIST_ONLY` is false, "
+              + "`CLIENT_MOD_WHITELIST` field is ignored instead.\n\n");
       writer.write(
-          "As you might see, if fabric-api is installed, the modlist will contains quite a lot of modids. You can run a client with this mod installed, and open \".minecraft/logs/latest.log\", and you will see the following format line to simplify gathering the modlist manually:\n\n");
+          "As you might see, if fabric-api is installed, the modlist will contains quite a lot "
+              + "of modids. You can run a client with this mod installed, and open "
+              + "\".minecraft/logs/latest.log\", and you will see the following format line to "
+              + "simplify gathering the modlist manually:\n\n");
       writer.write(
-          "```\nServer Pre-Check vx.x.x from the client! Modlist: [\"fabric-api\", \"fabric-api-base\", ...]\n```\n\n");
+          "```\nServer Pre-Check vx.x.x from the client! Modlist: [\"fabric-api\", "
+              + "\"fabric-api-base\", ...]\n```\n\n");
       writer.write(
-          "Alternatively, use the `/serverprecheck build whitelist` command in-game to copy your mod list to clipboard.\n\n");
+          "Alternatively, use the `/serverprecheck build whitelist` command in-game to copy "
+              + "your mod list to clipboard.\n\n");
 
       writer.write("# Issue tracker\n\n");
       writer.write(
-          "Visit the project's issue tracker and post your issue and logs if you find any problems with this mod.\n");
+          "Visit the project's issue tracker and post your issue and logs if you find any "
+              + "problems with this mod.\n");
     }
   }
 
   private static void loadFromJson(JsonObject jsonObject) {
     SPCLogger.LOGGER.debug("Loading json config file.");
-    IConfigValue.configValues.forEach(
+    IConfigValue.CONFIG_VALUES.forEach(
         iConfigValue -> {
           if (jsonObject.has(iConfigValue.name())) {
             iConfigValue.parseAsValue(jsonObject.get(iConfigValue.name()));
@@ -481,9 +522,9 @@ public class SPCServerConfig {
 
   private static void saveConfig() throws IOException {
     SPCLogger.LOGGER.debug("Saving json config file.");
-    try (Writer writer = new FileWriter(configFile)) {
+    try (Writer writer = new FileWriter(CONFIG_FILE)) {
       JsonObject configJson = new JsonObject();
-      IConfigValue.configValues.forEach(
+      IConfigValue.CONFIG_VALUES.forEach(
           iConfigValue -> {
             Serializable value = iConfigValue.value();
             if (value instanceof Number number) {
@@ -522,7 +563,7 @@ public class SPCServerConfig {
   }
 
   public static void checkValues() {
-    IConfigValue.configValues.forEach(IConfigValue::checkValueRange);
+    IConfigValue.CONFIG_VALUES.forEach(IConfigValue::checkValueRange);
   }
 
   public static class ConfigValueException extends RuntimeException {

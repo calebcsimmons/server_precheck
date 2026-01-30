@@ -40,11 +40,11 @@ public abstract class ServerLoginPacketListenerImplMixin {
    * check if there's a pending validation failure and if the player is exempt.
    */
   @Inject(method = "verifyLoginAndFinishConnectionSetup", at = @At("HEAD"), cancellable = true)
-  private void serverPreCheck$checkExemptionBeforeLogin(GameProfile gameProfile, CallbackInfo ci) {
+  private void checkExemptionBeforeLogin(GameProfile gameProfile, CallbackInfo ci) {
     IConnectionWithValidationResult validationResult =
         (IConnectionWithValidationResult) this.connection;
 
-    if (validationResult.serverPreCheck$hasValidationFailure()) {
+    if (validationResult.hasValidationFailure()) {
       UUID playerUuid = gameProfile.id();
       String playerName = gameProfile.name();
 
@@ -54,14 +54,13 @@ public abstract class ServerLoginPacketListenerImplMixin {
             "Player {} ({}) is exempt from mod validation - allowing connection",
             playerName,
             playerUuid);
-        validationResult.serverPreCheck$clearValidationFailure();
+        validationResult.clearValidationFailure();
         // Continue with normal login
         return;
       }
 
       // Player is not exempt - kick them with the stored message
-      MutableComponent failureMessage =
-          validationResult.serverPreCheck$getValidationFailureMessage();
+      MutableComponent failureMessage = validationResult.getValidationFailureMessage();
       SPCLogger.LOGGER.info(
           "Disconnecting player {} ({}) due to mod validation failure", playerName, playerUuid);
 

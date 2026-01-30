@@ -42,7 +42,9 @@ public class ServerHandshakePacketListenerImplMixin {
           @At(
               value = "INVOKE",
               target =
-                  "Lnet/minecraft/network/Connection;setupInboundProtocol(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V"))
+                  "Lnet/minecraft/network/Connection;"
+                      + "setupInboundProtocol(Lnet/minecraft/network/ProtocolInfo;"
+                      + "Lnet/minecraft/network/PacketListener;)V"))
   private void redirectSetupInboundProtocol(
       Connection connection,
       ProtocolInfo protocolInfo,
@@ -53,13 +55,12 @@ public class ServerHandshakePacketListenerImplMixin {
     connection.setupInboundProtocol(protocolInfo, packetListener);
 
     // Check the mod list and store the result on the connection
-    MutableComponent reason = serverPreCheck$checkModList(clientIntentionPacket);
+    MutableComponent reason = checkModList(clientIntentionPacket);
 
     if (reason != null) {
       // Store the validation failure on the connection for later checking
       // The actual kick will happen after authentication in ServerLoginPacketListenerImplMixin
-      ((IConnectionWithValidationResult) connection)
-          .serverPreCheck$setValidationFailureMessage(reason);
+      ((IConnectionWithValidationResult) connection).setValidationFailureMessage(reason);
     }
   }
 
@@ -71,8 +72,7 @@ public class ServerHandshakePacketListenerImplMixin {
    */
   @Unique
   @Nullable
-  private static MutableComponent serverPreCheck$checkModList(
-      ClientIntentionPacket clientIntentionPacket) {
+  private static MutableComponent checkModList(ClientIntentionPacket clientIntentionPacket) {
     IPacketWithModIds packetWithModIds = (IPacketWithModIds) (Object) clientIntentionPacket;
     List<String> modIds = packetWithModIds.getModIds();
 
