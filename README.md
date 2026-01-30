@@ -76,3 +76,4 @@ Server Pre-Check vx.x.x from the client! Modlist: ["fabric-api", ...]
     "EXEMPT_PLAYERS": ["069a79f4-44e9-4726-a5be-fca90e38cmf5"]
 }
 ```
+This repository uses [pre-commit](https://pre-commit.com/) to ensure code quality. Please install it before committing.
