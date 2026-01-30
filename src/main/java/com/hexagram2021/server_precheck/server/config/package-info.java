@@ -1,4 +1,4 @@
 @ParametersAreNonnullByDefault
-package com.hexagram2021.mod_whitelist.server.config;
+package com.hexagram2021.server_precheck.server.config;
 
 import javax.annotation.ParametersAreNonnullByDefault;
