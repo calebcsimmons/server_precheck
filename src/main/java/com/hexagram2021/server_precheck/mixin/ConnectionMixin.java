@@ -15,16 +15,16 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(Connection.class)
 public class ConnectionMixin implements IConnectionWithValidationResult {
 
-  @Unique @Nullable private MutableComponent serverPreCheck$validationFailureMessage;
+  @Unique @Nullable private MutableComponent validationFailureMessage;
 
   @Override
   @Nullable
-  public MutableComponent serverPreCheck$getValidationFailureMessage() {
-    return this.serverPreCheck$validationFailureMessage;
+  public MutableComponent getValidationFailureMessage() {
+    return this.validationFailureMessage;
   }
 
   @Override
-  public void serverPreCheck$setValidationFailureMessage(@Nullable MutableComponent message) {
-    this.serverPreCheck$validationFailureMessage = message;
+  public void setValidationFailureMessage(@Nullable MutableComponent message) {
+    this.validationFailureMessage = message;
   }
 }

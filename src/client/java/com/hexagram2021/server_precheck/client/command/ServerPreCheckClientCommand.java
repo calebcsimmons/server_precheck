@@ -30,7 +30,7 @@ public class ServerPreCheckClientCommand {
   }
 
   private static int executeList(CommandContext<FabricClientCommandSource> context) {
-    List<String> mods = ServerPreCheckClient.mods;
+    List<String> mods = ServerPreCheckClient.MODS;
 
     context
         .getSource()
@@ -48,7 +48,7 @@ public class ServerPreCheckClientCommand {
   }
 
   private static int executeBuildWhitelist(CommandContext<FabricClientCommandSource> context) {
-    List<String> mods = ServerPreCheckClient.mods;
+    List<String> mods = ServerPreCheckClient.MODS;
 
     // Build compact format for clipboard (JSON array content)
     StringBuilder compactBuilder = new StringBuilder();
@@ -105,7 +105,7 @@ public class ServerPreCheckClientCommand {
   }
 
   private static int executeCount(CommandContext<FabricClientCommandSource> context) {
-    int count = ServerPreCheckClient.mods.size();
+    int count = ServerPreCheckClient.MODS.size();
     context
         .getSource()
         .sendFeedback(

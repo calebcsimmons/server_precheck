@@ -27,21 +27,21 @@ public class ClientIntentionPacketMixin implements IPacketWithModIds {
    * threads.
    */
   @Unique
-  private static final Map<ClientIntentionPacket, List<String>> serverPreCheck$modIdsMap =
+  private static final Map<ClientIntentionPacket, List<String>> MOD_IDS_MAP =
       Collections.synchronizedMap(new WeakHashMap<>());
 
   @Override
   @Nullable
   public List<String> getModIds() {
-    return serverPreCheck$modIdsMap.get((ClientIntentionPacket) (Object) this);
+    return MOD_IDS_MAP.get((ClientIntentionPacket) (Object) this);
   }
 
   @Override
   public void setModIds(@Nullable List<String> modIds) {
     if (modIds != null) {
-      serverPreCheck$modIdsMap.put((ClientIntentionPacket) (Object) this, modIds);
+      MOD_IDS_MAP.put((ClientIntentionPacket) (Object) this, modIds);
     } else {
-      serverPreCheck$modIdsMap.remove((ClientIntentionPacket) (Object) this);
+      MOD_IDS_MAP.remove((ClientIntentionPacket) (Object) this);
     }
   }
 
@@ -52,8 +52,7 @@ public class ClientIntentionPacketMixin implements IPacketWithModIds {
   private void getModIdsFromInit(
       int protocolVersion, String hostName, int port, ClientIntent intention, CallbackInfo ci) {
     if (intention.equals(ClientIntent.LOGIN)) {
-      serverPreCheck$modIdsMap.put(
-          (ClientIntentionPacket) (Object) this, ModListHolder.getClientMods());
+      MOD_IDS_MAP.put((ClientIntentionPacket) (Object) this, ModListHolder.getClientMods());
     }
   }
 
@@ -63,7 +62,7 @@ public class ClientIntentionPacketMixin implements IPacketWithModIds {
     if (self.intention().equals(ClientIntent.LOGIN)) {
       try {
         List<String> modIds = friendlyByteBuf.readList(FriendlyByteBuf::readUtf);
-        serverPreCheck$modIdsMap.put(self, modIds);
+        MOD_IDS_MAP.put(self, modIds);
       } catch (DecoderException e) {
         SPCLogger.LOGGER.warn("Decoder exception occurs when parsing ClientIntentionPacket: ", e);
       }
@@ -72,7 +71,7 @@ public class ClientIntentionPacketMixin implements IPacketWithModIds {
 
   @Inject(method = "write", at = @At(value = "TAIL"))
   private void writeModIdsToNetwork(FriendlyByteBuf friendlyByteBuf, CallbackInfo ci) {
-    List<String> modIds = serverPreCheck$modIdsMap.get((ClientIntentionPacket) (Object) this);
+    List<String> modIds = MOD_IDS_MAP.get((ClientIntentionPacket) (Object) this);
     if (modIds != null) {
       friendlyByteBuf.writeCollection(modIds, FriendlyByteBuf::writeUtf);
     }

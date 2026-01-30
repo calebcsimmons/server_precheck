@@ -11,16 +11,16 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.loader.api.FabricLoader;
 
 public class ServerPreCheckClient implements ClientModInitializer {
-  public static final List<String> mods = Lists.newArrayList();
+  public static final List<String> MODS = Lists.newArrayList();
 
   @Override
   public void onInitializeClient() {
-    mods.clear();
-    FabricLoader.getInstance().getAllMods().forEach(mod -> mods.add(mod.getMetadata().getId()));
-    mods.sort(String::compareTo);
+    MODS.clear();
+    FabricLoader.getInstance().getAllMods().forEach(mod -> MODS.add(mod.getMetadata().getId()));
+    MODS.sort(String::compareTo);
 
     // Set the mod list in the common holder for the mixin to access
-    ModListHolder.setClientMods(mods);
+    ModListHolder.setClientMods(MODS);
 
     // Register client commands
     ClientCommandRegistrationCallback.EVENT.register(
@@ -33,7 +33,7 @@ public class ServerPreCheckClient implements ClientModInitializer {
 
   public static void hello() {
     StringBuilder modlist = new StringBuilder();
-    mods.forEach(mod -> modlist.append('"').append(mod).append("\", "));
+    MODS.forEach(mod -> modlist.append('"').append(mod).append("\", "));
     SPCLogger.LOGGER.info(
         "%s v%s from the client! Modlist: [%s]"
             .formatted(ServerPreCheck.MOD_NAME, ServerPreCheck.MOD_VERSION, modlist.toString()));
