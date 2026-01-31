@@ -102,6 +102,7 @@ class UuidValidationTest {
 
     @Test
     @DisplayName("Should match UUID with dashes against list with dashes")
+    @SuppressWarnings("null")
     void testMatchWithDashes() {
       String[] exemptList = {"069a79f4-44e9-4726-a5be-fca90e38aaf5"};
       UUID uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
@@ -111,6 +112,7 @@ class UuidValidationTest {
 
     @Test
     @DisplayName("Should match UUID against list without dashes")
+    @SuppressWarnings("null")
     void testMatchWithoutDashes() {
       String[] exemptList = {"069a79f444e94726a5befca90e38aaf5"};
       UUID uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
@@ -120,6 +122,7 @@ class UuidValidationTest {
 
     @Test
     @DisplayName("Should match case-insensitively")
+    @SuppressWarnings("null")
     void testCaseInsensitiveMatch() {
       String[] exemptList = {"069A79F4-44E9-4726-A5BE-FCA90E38AAF5"};
       UUID uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
@@ -129,6 +132,7 @@ class UuidValidationTest {
 
     @Test
     @DisplayName("Should not match different UUID")
+    @SuppressWarnings("null")
     void testNoMatchDifferentUuid() {
       String[] exemptList = {"069a79f4-44e9-4726-a5be-fca90e38aaf5"};
       UUID uuid = UUID.fromString("853c80ef-3c37-49fd-aa49-938b674adae6");
@@ -138,6 +142,7 @@ class UuidValidationTest {
 
     @Test
     @DisplayName("Should match in list with multiple UUIDs")
+    @SuppressWarnings("null")
     void testMatchInMultipleUuids() {
       String[] exemptList = {
         "00000000-0000-0000-0000-000000000000",
@@ -151,6 +156,7 @@ class UuidValidationTest {
 
     @Test
     @DisplayName("Should not match in empty list")
+    @SuppressWarnings("null")
     void testNoMatchEmptyList() {
       String[] exemptList = {};
       UUID uuid = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
