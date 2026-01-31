@@ -40,6 +40,7 @@ public abstract class ServerLoginPacketListenerImplMixin {
    * check if there's a pending validation failure and if the player is exempt.
    */
   @Inject(method = "verifyLoginAndFinishConnectionSetup", at = @At("HEAD"), cancellable = true)
+  @SuppressWarnings("null") // UUID.fromString never returns null
   private void checkExemptionBeforeLogin(GameProfile gameProfile, CallbackInfo ci) {
     IConnectionWithValidationResult validationResult =
         (IConnectionWithValidationResult) this.connection;

@@ -8,10 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.handshake.ClientIntent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,6 +37,7 @@ public class ClientIntentionPacketMixin implements IPacketWithModIds {
   }
 
   @Override
+  @SuppressWarnings("null") // modIds can be null per interface contract
   public void setModIds(@Nullable List<String> modIds) {
     if (modIds != null) {
       MOD_IDS_MAP.put((ClientIntentionPacket) (Object) this, modIds);
