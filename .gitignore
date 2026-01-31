@@ -21,3 +21,5 @@ build
 eclipse
 run
 .env
+.vscode
+.DS_Store
