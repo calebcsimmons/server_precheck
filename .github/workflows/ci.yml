@@ -98,6 +98,85 @@ jobs:
         path: build/reports/checkstyle/
         retention-days: 7
 
+  version-check:
+    runs-on: ubuntu-latest
+    # Only run on pull requests
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout PR branch
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Fetch base branch
+      run: |
+        git fetch origin ${{ github.base_ref }}
+
+    - name: Check semantic version bump
+      run: |
+        # Extract mod_version from current branch
+        CURRENT_VERSION=$(grep "^mod_version" gradle.properties | sed 's/mod_version[[:space:]]*=[[:space:]]*//')
+
+        # Extract mod_version from base branch
+        BASE_VERSION=$(git show origin/${{ github.base_ref }}:gradle.properties | grep "^mod_version" | sed 's/mod_version[[:space:]]*=[[:space:]]*//')
+
+        echo "Base version: $BASE_VERSION"
+        echo "Current version: $CURRENT_VERSION"
+
+        # Function to validate semantic version format
+        validate_semver() {
+          if [[ ! $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$ ]]; then
+            echo "Error: '$1' is not a valid semantic version (expected format: MAJOR.MINOR.PATCH[-prerelease][+build])"
+            return 1
+          fi
+          return 0
+        }
+
+        # Validate both versions
+        validate_semver "$BASE_VERSION" || exit 1
+        validate_semver "$CURRENT_VERSION" || exit 1
+
+        # Parse versions (strip pre-release and build metadata for comparison)
+        BASE_CORE=$(echo "$BASE_VERSION" | sed 's/[-+].*//')
+        CURRENT_CORE=$(echo "$CURRENT_VERSION" | sed 's/[-+].*//')
+
+        # Split into major.minor.patch
+        IFS='.' read -r BASE_MAJOR BASE_MINOR BASE_PATCH <<< "$BASE_CORE"
+        IFS='.' read -r CURR_MAJOR CURR_MINOR CURR_PATCH <<< "$CURRENT_CORE"
+
+        # Check if version was bumped
+        VERSION_BUMPED=false
+
+        if [ "$CURR_MAJOR" -gt "$BASE_MAJOR" ]; then
+          VERSION_BUMPED=true
+          echo "✓ Major version bumped: $BASE_VERSION → $CURRENT_VERSION"
+        elif [ "$CURR_MAJOR" -eq "$BASE_MAJOR" ] && [ "$CURR_MINOR" -gt "$BASE_MINOR" ]; then
+          VERSION_BUMPED=true
+          echo "✓ Minor version bumped: $BASE_VERSION → $CURRENT_VERSION"
+        elif [ "$CURR_MAJOR" -eq "$BASE_MAJOR" ] && [ "$CURR_MINOR" -eq "$BASE_MINOR" ] && [ "$CURR_PATCH" -gt "$BASE_PATCH" ]; then
+          VERSION_BUMPED=true
+          echo "✓ Patch version bumped: $BASE_VERSION → $CURRENT_VERSION"
+        elif [ "$BASE_VERSION" != "$CURRENT_VERSION" ]; then
+          # Pre-release or build metadata changed
+          VERSION_BUMPED=true
+          echo "✓ Version metadata changed: $BASE_VERSION → $CURRENT_VERSION"
+        fi
+
+        if [ "$VERSION_BUMPED" = false ]; then
+          echo "❌ Error: mod_version in gradle.properties must be bumped for pull requests"
+          echo "   Current version ($CURRENT_VERSION) is not greater than base version ($BASE_VERSION)"
+          echo ""
+          echo "Please update mod_version in gradle.properties following semantic versioning:"
+          echo "  - MAJOR version for incompatible API changes"
+          echo "  - MINOR version for backwards-compatible functionality additions"
+          echo "  - PATCH version for backwards-compatible bug fixes"
+          exit 1
+        fi
+
+        echo ""
+        echo "✓ Version check passed!"
+
   dependency-submission:
     runs-on: ubuntu-latest
     permissions:
