@@ -1,4 +1,4 @@
-package com.hexagram2021.mod_whitelist.server.config;
+package com.hexagram2021.server_precheck.server.config;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
