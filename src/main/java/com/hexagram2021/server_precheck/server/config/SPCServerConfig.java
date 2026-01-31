@@ -369,7 +369,8 @@ public class SPCServerConfig {
     lazyInit();
   }
 
-  @SuppressWarnings("null") // JsonParser.parseReader and JsonElement.getAsJsonObject never return null
+  @SuppressWarnings(
+      "null") // JsonParser.parseReader and JsonElement.getAsJsonObject never return null
   private static void lazyInit() {
     try {
       // Ensure config directory exists (FabricLoader.getConfigDir() should already exist, but check
