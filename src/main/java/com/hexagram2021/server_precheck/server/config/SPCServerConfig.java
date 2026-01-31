@@ -46,6 +46,7 @@ public class SPCServerConfig {
     private final ArrayList<T> value;
 
     @SafeVarargs
+    @SuppressWarnings("null") // Collectors.toCollection never returns null
     public ListConfigValue(String name, T... defaultValues) {
       this(
           name, Arrays.stream(defaultValues).collect(Collectors.toCollection(Lists::newArrayList)));
@@ -59,6 +60,7 @@ public class SPCServerConfig {
     }
 
     @Override
+    @SuppressWarnings("null") // ArrayList elements are guaranteed non-null by our validation
     public void checkValueRange() throws ConfigValueException {
       this.value.forEach(
           v -> {
@@ -69,6 +71,7 @@ public class SPCServerConfig {
     }
 
     @Override
+    @SuppressWarnings("null") // Gson's JsonArray.asList() never returns null elements
     public void parseAsValue(JsonElement element) {
       this.value.clear();
       element.getAsJsonArray().asList().forEach(e -> this.value.add(this.parseAsElementValue(e)));
@@ -366,6 +369,7 @@ public class SPCServerConfig {
     lazyInit();
   }
 
+  @SuppressWarnings("null") // JsonParser.parseReader and JsonElement.getAsJsonObject never return null
   private static void lazyInit() {
     try {
       // Ensure config directory exists (FabricLoader.getConfigDir() should already exist, but check
@@ -510,6 +514,7 @@ public class SPCServerConfig {
     }
   }
 
+  @SuppressWarnings("null") // JsonObject.get never returns null when has() returns true
   private static void loadFromJson(JsonObject jsonObject) {
     SPCLogger.LOGGER.debug("Loading json config file.");
     IConfigValue.CONFIG_VALUES.forEach(

@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public interface IConfigHelper {
+  @SuppressWarnings("null") // Gson's JsonElement methods never return null
   static void writeJsonToFile(Writer writer, @Nullable String key, JsonElement json, int tab)
       throws IOException {
     writer.write("\t".repeat(tab));
